@@ -1,10 +1,12 @@
 import aiosqlite
+from pathlib import Path
 from config import DATABASE_PATH
 
 async def init_db() -> None:
+    Path(DATABASE_PATH).parent.mkdir(parents=True, exist_ok=True)
     async with aiosqlite.connect(DATABASE_PATH) as db:
         await db.execute("""
-        CREATE TABLEE IF NOT EXIST users (
+        CREATE TABLE IF NOT EXISTS users (
             user_id     INTEGER PRIMARY KEY,
             username    TEXT,
             first_name  TEXT NOT NULL,

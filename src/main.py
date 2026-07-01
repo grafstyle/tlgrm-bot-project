@@ -1,13 +1,36 @@
-from telegram.ext._updater import Updater
-from telegram._update import Update
-from telegram.ext._callbackcontext import CallbackContext
-from telegram.ext._handlers.commandhandler import CommandHandler
-from telegram.ext._handlers.messagehandler import MessageHandler
-from dotenv import load_dotenv
-import os
+import logging
+import sys
+from pathlib import Path
 
-load_dotenv()
-bottoken = os.getenv("BOT_TOKEN")
+sys.path.insert(0, str(Path(__file__).parent))
 
-updater = Updater(bottoken, use_context=True)
-print(bottoken)
+from telegram.ext import Application, CommandHandler
+
+from bot.handlers.onboarding import set_goal, start
+from config import BOT_TOKEN
+from db.database import init_db
+
+logger = logging.getLogger(__name__)
+
+
+async def post_init(application: Application) -> None:
+    await init_db()
+    logger.info("Database ready.")
+
+
+def main() -> None:
+    app = (
+        Application.builder()
+        .token(BOT_TOKEN)
+        .post_init(post_init)
+        .build()
+    )
+
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("setgoal", set_goal))
+
+    logger.info("DrinkWaterNowBot is running...")
+    app.run_polling(drop_pending_updates=True)
+
+if __name__ == "__main__":
+    main()

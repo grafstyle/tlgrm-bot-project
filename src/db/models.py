@@ -5,7 +5,7 @@ from config import DATABASE_PATH
 async def get_or_create_user(
     user_id: int, username: str | None, first_name: str
 ) -> dict:
-    async with aiosqlite.connect(DATABA_PATH) as db:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
         db.row_factory = aiosqlite.Row 
         await db.execute(
             """
@@ -38,4 +38,4 @@ async def get_user(user_id: int) -> dict | None:
             "SELECT * FROM users WHERE user_id = ?", (user_id,)
         )
         row = await cursor.fetchone()
-        return dict(row) if row else None:
+        return dict(row) if row else None

@@ -26,34 +26,34 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
 
 
-    async def set_goal(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        user = update.effective_user
+async def set_goal(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user = update.effective_user
 
-        if not context.args:
-            await update.message.reply_text(
+    if not context.args:
+        await update.message.reply_text(
                 "Please provide your goal in ml. \n"
                 "Example: /setgoal 2500"
-            )
-            return
+        )
+        return
         
-        try:
-            goal_ml = int(context.args[0])
-        except ValueError:
-            await update.message.reply_text(
-                "That doesn't look like a number. Example: /setgoal 2500"
-            )
-            return
-
-        if not (MIN_GOAL_ML <= goal_ml <= MAX_GOAL_ML):
-            await update.message.reply_text(
-                f"Please set a goal between {MIN_GOAL_ML} ml and {MAX_GOAL_ML} ml."
-            )
-            return
-
-        await models.update_daily_goal(user_id=user.id, goal_ml=goal_ml)
+    try:
+        goal_ml = int(context.args[0])
+    except ValueError:
         await update.message.reply_text(
-            f"Done! Your new daily goal *{goal_ml} ml*.",
-            parse_mode="Markdown",
+            "That doesn't look like a number. Example: /setgoal 2500"
+        )
+        return
+
+    if not (MIN_GOAL_ML <= goal_ml <= MAX_GOAL_ML):
+        await update.message.reply_text(
+            f"Please set a goal between {MIN_GOAL_ML} ml and {MAX_GOAL_ML} ml."
+        )
+        return
+
+    await models.update_daily_goal(user_id=user.id, goal_ml=goal_ml)
+    await update.message.reply_text(
+        f"Done! Your new daily goal *{goal_ml} ml*.",
+        parse_mode="Markdown",
         )
 
         

@@ -9,7 +9,7 @@ BOT_TOKEN: str = os.environ["BOT_TOKEN"]
 
 DATABASE_PATH: str = os.getenv(
     "DATABASE_PATH",
-    str(Path(__file__).parent.parent / "drinkwaternow.db"),
+    str(Path(__file__).resolve().parent.parent / "drinkwaternow.db"),
 )
 
 DEFAULT_DAILY_GOAL_ML: int = 2000
