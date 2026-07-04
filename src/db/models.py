@@ -39,3 +39,46 @@ async def get_user(user_id: int) -> dict | None:
         )
         row = await cursor.fetchone()
         return dict(row) if row else None
+
+
+async def add_log(user_id: int, amount_ml: int) -> None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            "INSERT INTO water_logs (user_id, amount_ml) VALUES(?, ?)",
+            (user_id, amount_ml)
+        )
+        await db.commit()
+
+
+async def get_today_total(user_id: int) -> int: 
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        cursor = await db.execute(
+            """
+            SELECT COALESCE(SUM(amount_ml), 0)
+            FROM water_logs
+            WHERE user_id = ?
+              AND date(logged_at) = date('now')
+            """,
+            (user_id,),
+        )
+        row = await cursor.fetchone()
+        return row[0]
+
+
+async def set_reminder(user_id: int, interval_minutes: int) -> None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await db.execute(
+            "UPDATE user set reminder_interval = ? WHERE user_id = ?",
+            (interval_minutes, user_id),
+        )
+        await db.commit()
+
+
+async def get_users_with_reminders() -> list[dict]:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            "SELECT user_id, first_name, reminder_interval FROM users "
+            "WHERE reminder_interval IS NOT NULL"
+        )
+        return [dict(row) for row in await cursor.fetchall()]
